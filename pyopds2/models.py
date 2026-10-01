@@ -4,7 +4,7 @@ Based on the OPDS 2.0 specification and Web Publication Manifest.
 """
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field  # field_validator
 
@@ -20,7 +20,9 @@ class Link(BaseModel):
     """
     href: str = Field(..., description="URI or URI template of the linked resource")
     type: Optional[str] = Field(None, description="MIME type of the linked resource")
-    rel: Optional[str] = Field(None, description="Relation between resource and parent")
+    rel: Optional[Union[str, List[str]]] = Field(
+        None, description="Relation(s) between resource and parent: one relation, or a list of them"
+    )
     title: Optional[str] = Field(None, description="Title of the link")
     templated: Optional[bool] = Field(None, description="Indicates the href is a URI template")
     properties: Optional[Dict[str, Any]] = Field(None, description="Additional properties")
@@ -85,7 +87,7 @@ class Navigation(BaseModel):
     href: str = Field(..., description="URI of the navigation target")
     title: str = Field(..., description="Title of the navigation item")
     type: Optional[str] = Field(None, description="MIME type")
-    rel: Optional[str] = Field(None, description="Relation type")
+    rel: Optional[Union[str, List[str]]] = Field(None, description="Relation type, or a list of them")
 
     model_config = {"extra": "allow"}
 
