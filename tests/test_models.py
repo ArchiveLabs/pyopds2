@@ -203,3 +203,13 @@ def test_link_rel_accepts_a_list():
 def test_navigation_rel_accepts_a_list():
     nav = Navigation(href="https://example.com/art", title="Art", rel=["subsection", "current"])
     assert nav.rel == ["subsection", "current"]
+
+
+def test_has_rel_reads_a_string_or_a_list_on_a_model_or_a_dict():
+    from pyopds2 import has_rel
+    assert has_rel(Link(href="/", rel="self"), "self")
+    assert has_rel(Link(href="/", rel=["self", "next"]), "next")
+    assert not has_rel(Link(href="/", rel=["self", "next"]), "previous")
+    assert has_rel({"href": "/", "rel": ["self", "x"]}, "x")
+    assert not has_rel({"href": "/"}, "self")
+    assert not has_rel(Link(href="/"), "self")
