@@ -14,9 +14,11 @@ from pyopds2.models import (
     Navigation,
     Publication,
 )
+from pyopds2.helpers import has_rel
 from pyopds2.provider import DataProvider, DataProviderRecord, Search
 
 __all__ = [
+    "has_rel",
     "Catalog",
     "Contributor",
     "DataProvider",

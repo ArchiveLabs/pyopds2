@@ -190,3 +190,26 @@ def test_catalog_with_navigation():
     assert len(catalog.navigation) == 2
     assert catalog.navigation[0].title == "Fiction"
     assert catalog.navigation[1].title == "Non-Fiction"
+
+
+def test_link_rel_accepts_a_list():
+    """RWPM allows `rel` to be one relation or a list of them, e.g. a facet
+    link that is both the applied option (`self`) and a member of its group."""
+    link = Link(href="https://example.com/?mode=ebooks", rel=["self", "https://example.com/rel/facet/availability"])
+    assert link.rel == ["self", "https://example.com/rel/facet/availability"]
+    assert link.model_dump(exclude_none=True)["rel"] == ["self", "https://example.com/rel/facet/availability"]
+
+
+def test_navigation_rel_accepts_a_list():
+    nav = Navigation(href="https://example.com/art", title="Art", rel=["subsection", "current"])
+    assert nav.rel == ["subsection", "current"]
+
+
+def test_has_rel_reads_a_string_or_a_list_on_a_model_or_a_dict():
+    from pyopds2 import has_rel
+    assert has_rel(Link(href="/", rel="self"), "self")
+    assert has_rel(Link(href="/", rel=["self", "next"]), "next")
+    assert not has_rel(Link(href="/", rel=["self", "next"]), "previous")
+    assert has_rel({"href": "/", "rel": ["self", "x"]}, "x")
+    assert not has_rel({"href": "/"}, "self")
+    assert not has_rel(Link(href="/"), "self")
