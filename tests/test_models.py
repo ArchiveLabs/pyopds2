@@ -213,3 +213,20 @@ def test_has_rel_reads_a_string_or_a_list_on_a_model_or_a_dict():
     assert has_rel({"href": "/", "rel": ["self", "x"]}, "x")
     assert not has_rel({"href": "/"}, "self")
     assert not has_rel(Link(href="/"), "self")
+
+
+def test_metadata_published_accepts_a_date_and_dumps_iso():
+    """A printing's year is a date, not a moment: ``2010-01-01`` round-trips as
+    the date and dumps as the ISO date string, JSON-ready without ``default=str``."""
+    from datetime import date
+
+    metadata = Metadata(title="Example Book", published="2010-01-01")
+    assert metadata.published == date(2010, 1, 1)
+    assert metadata.model_dump(exclude_none=True)["published"] == "2010-01-01"
+    assert json.dumps(Publication(metadata=metadata).model_dump())
+
+
+def test_metadata_published_keeps_a_datetime_and_dumps_iso():
+    metadata = Metadata(title="Example Book", published=datetime(2024, 1, 1, 12, 0, 0))
+    assert metadata.published == datetime(2024, 1, 1, 12, 0, 0)
+    assert metadata.model_dump(exclude_none=True)["published"] == "2024-01-01T12:00:00"

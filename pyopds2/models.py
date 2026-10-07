@@ -3,10 +3,10 @@
 Based on the OPDS 2.0 specification and Web Publication Manifest.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field  # field_validator
+from pydantic import BaseModel, Field, field_serializer
 
 
 if TYPE_CHECKING:
@@ -50,7 +50,9 @@ class Metadata(BaseModel):
     identifier: Optional[str] = Field(None, alias="@id", description="Unique identifier")
     type: Optional[str] = Field(None, alias="@type", description="Type of the resource")
     modified: Optional[datetime] = Field(None, description="Last modification date")
-    published: Optional[datetime] = Field(None, description="Publication date")
+    # A date or a date-time (RWPM allows either): a catalogue that knows only
+    # the year of a printing says ``2010-01-01`` and nothing about the clock.
+    published: Optional[Union[date, datetime]] = Field(None, description="Publication date")
     language: Optional[List[str]] = Field(None, description="Language codes")
     description: Optional[str] = Field(None, description="Description of the resource")
     author: Optional[List[Contributor]] = Field(None, description="Authors")
@@ -62,6 +64,12 @@ class Metadata(BaseModel):
     numberOfItems: Optional[int] = Field(None, description="Number of items in collection")
 
     model_config = {"populate_by_name": True, "extra": "allow"}
+
+    @field_serializer("modified", "published")
+    def _serialize_when(self, value: Optional[Union[date, datetime]]) -> Optional[str]:
+        """ISO 8601, so a dump is JSON-ready: ``2010-01-01`` for a date,
+        ``2024-01-01T12:00:00`` for a date-time."""
+        return value.isoformat() if value is not None else None
 
 
 class Publication(BaseModel):
